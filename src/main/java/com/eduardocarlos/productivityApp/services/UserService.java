@@ -6,6 +6,7 @@ import com.eduardocarlos.productivityApp.repositories.UserRepository;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,9 +39,13 @@ public class UserService {
                 .orElseThrow(()-> new ObjectNotFoundException(user, "User not found"));
     }
 
+    public List<User> findAll() {
+        List<User> users = this.userRepository.findAll();
+        return users;
+    }
+
     //Create
     public User create(User user) {
-        user.setId(null);
         return userRepository.save(user);
     }
 
