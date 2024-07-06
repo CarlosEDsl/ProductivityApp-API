@@ -3,16 +3,16 @@ package com.eduardocarlos.productivityApp.controller;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController

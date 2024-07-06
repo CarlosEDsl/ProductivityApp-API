@@ -3,21 +3,21 @@ This repository contains the backend implementation for a task and time organiza
 
 # Key Features (Future implementations):
 
-User Authentication: JWT-based authentication and authorization for secure API access.
-Task Management: CRUD operations for creating, updating, retrieving, and deleting tasks.
-Time Logging: Saving the term, task conclusion, task creation, Pomodoro hours used.
-Productivity Metrics: Calculation and display of overall task completion, and daily time progression averages.
-Pomodoro Technique: Integration of timers for implementing the Pomodoro technique with intervals and breaks.
-Scalability and Security: Designed to scale efficiently and adhere to best practices in data security and API protection.
-Error Handling: Robust error handling and logging mechanisms ensure application stability.
-Cell Notifications: Send whatsapp messages about tasks terms with Node JS.
+User Authentication: JWT-based authentication and authorization for secure API access.<br>
+Task Management: CRUD operations for creating, updating, retrieving, and deleting tasks.<br>
+Time Logging: Saving the term, task conclusion, task creation, Pomodoro hours used.<br>
+Productivity Metrics: Calculation and display of overall task completion, and daily time progression averages.<br>
+Pomodoro Technique: Integration of timers for implementing the Pomodoro technique with intervals and breaks.<br>
+Scalability and Security: Designed to scale efficiently and adhere to best practices in data security and API protection.<br>
+Error Handling: Robust error handling and logging mechanisms ensure application stability.<br>
+Cell Notifications: Send whatsapp messages about tasks terms with Node JS.<br>
 
 # Technology Stack:
 
-Framework: Spring Boot
-Database: MySQL
-Security: JWT (JSON Web Tokens)
-Messaging: -
+Framework: Spring Boot<br>
+Database: MySQL<br>
+Security: JWT (JSON Web Tokens)<br>
+Messaging: -<br>
 
 # Documentation:
 
