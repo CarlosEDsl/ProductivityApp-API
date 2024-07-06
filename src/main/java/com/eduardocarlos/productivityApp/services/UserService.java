@@ -7,6 +7,7 @@ import org.hibernate.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,19 +25,19 @@ public class UserService {
     public User findById(UUID id) {
         Optional<User> user = this.userRepository.findById(id);
         return user
-                .orElseThrow(()-> new ObjectNotFoundException(id, "User not found"));
+                .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
     public User findByEmail(String email) {
         Optional<User> user = this.userRepository.findByEmail(email);
         return user
-                .orElseThrow(()-> new ObjectNotFoundException(user, "User not found"));
+                .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
     public User findByUsername(String username) {
         Optional<User> user = this.userRepository.findByName(username);
         return user
-                .orElseThrow(()-> new ObjectNotFoundException(user, "User not found"));
+                .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
     public List<User> findAll() {
@@ -62,8 +63,10 @@ public class UserService {
 
     //Delete
     public void delete(UUID id, String email) {
-        this.findById(id);
-        this.findByEmail(email);
+        User user = this.findByEmail(email);
+        if(!user.equals(this.findById(id))) {
+            throw new RuntimeException("User and ID dont match");
+        }
 
         try {
             this.userRepository.delete(this.findById(id));

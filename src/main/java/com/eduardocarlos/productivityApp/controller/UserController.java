@@ -3,6 +3,7 @@ package com.eduardocarlos.productivityApp.controller;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +24,13 @@ public class UserController{
 
     public UserController(UserService userService) {
         this.userService = userService;
+    }
+
+    //Just for test
+    @GetMapping
+    public ResponseEntity<List<User>> getAll() {
+        List<User> users = this.userService.findAll();
+        return ResponseEntity.ok().body(users);
     }
 
     @PostMapping
@@ -40,13 +50,20 @@ public class UserController{
         return ResponseEntity.ok().body(user);
     }
 
-
-    //Just for test
-    @GetMapping
-    public ResponseEntity<List<User>> getAll() {
-        List<User> users = this.userService.findAll();
-        return ResponseEntity.ok().body(users);
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable UUID id, @Valid @RequestBody User user){
+        user.setId(id);
+        User updatedUser = this.userService.update(user);
+        return ResponseEntity.ok().body(updatedUser);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id, @RequestBody Map<String, Object> payload) {
+        String email = (String) payload.get("email");
+        this.userService.delete(id, email);
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 
