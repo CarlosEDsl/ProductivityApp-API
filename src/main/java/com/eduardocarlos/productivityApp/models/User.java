@@ -17,11 +17,11 @@ import java.util.UUID;
 @Data
 public class User {
 
-    public static final String table_name = "user";
+    public static final String table_name = "users";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @Column(unique = true, nullable = false, length = 256)
     @NotBlank

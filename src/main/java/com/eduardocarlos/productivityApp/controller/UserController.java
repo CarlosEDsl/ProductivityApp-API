@@ -45,20 +45,20 @@ public class UserController{
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findById(@PathVariable UUID id) {
+    public ResponseEntity<User> findById(@PathVariable Long id) {
         User user = this.userService.findById(id);
         return ResponseEntity.ok().body(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable UUID id, @Valid @RequestBody User user){
+    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User user){
         user.setId(id);
         User updatedUser = this.userService.update(user);
         return ResponseEntity.ok().body(updatedUser);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id, @RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Void> delete(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         String email = (String) payload.get("email");
         this.userService.delete(id, email);
         return ResponseEntity.noContent().build();

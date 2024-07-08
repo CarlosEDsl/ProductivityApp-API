@@ -22,7 +22,7 @@ public class UserService {
 
 
     //Searches
-    public User findById(UUID id) {
+    public User findById(Long id) {
         Optional<User> user = this.userRepository.findById(id);
         return user
                 .orElseThrow(()-> new RuntimeException("User not found"));
@@ -47,6 +47,7 @@ public class UserService {
 
     //Create
     public User create(User user) {
+        user.setId(null);
         return userRepository.save(user);
     }
 
@@ -62,7 +63,7 @@ public class UserService {
     }
 
     //Delete
-    public void delete(UUID id, String email) {
+    public void delete(Long id, String email) {
         User user = this.findByEmail(email);
         if(!user.equals(this.findById(id))) {
             throw new RuntimeException("User and ID dont match");
@@ -71,7 +72,7 @@ public class UserService {
         try {
             this.userRepository.delete(this.findById(id));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new RuntimeException("User have relationships in database");
         }
     }
 
