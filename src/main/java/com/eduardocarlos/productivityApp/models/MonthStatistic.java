@@ -16,11 +16,11 @@ import java.util.UUID;
 @Data
 public class MonthStatistic {
 
-    public static final String table_name = "monthstatistic";
+    public static final String table_name = "monthstatistics";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
