@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Entity
@@ -40,7 +41,9 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime inputDate = LocalDateTime.now();
+    private LocalDateTime inputDate = LocalDateTime.parse(LocalDateTime.now()
+            .format(DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
     @Column
     private LocalDateTime finishDate;

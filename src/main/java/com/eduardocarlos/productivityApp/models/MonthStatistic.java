@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -28,7 +29,7 @@ public class MonthStatistic {
 
     @Column(nullable = false)
     @NotBlank
-    private String month;
+    private LocalDate month;
 
     @Column
     private Float avgConclusions;
