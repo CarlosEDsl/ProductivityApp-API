@@ -2,15 +2,15 @@ package com.eduardocarlos.productivityApp.models;
 
 import com.eduardocarlos.productivityApp.models.enums.Month;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.time.Year;
 
 @Entity
 @Table(name = MonthStatistic.table_name)
@@ -26,16 +26,17 @@ public class MonthStatistic {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull
+    @Enumerated(EnumType.ORDINAL)
     private Month month;
 
     @Column(nullable = false)
-    @NotBlank
-    private LocalDate date;
+    @NotNull
+    private Integer year;
 
     @Column
     private BigDecimal avgConclusions;
