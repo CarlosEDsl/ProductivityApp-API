@@ -1,12 +1,10 @@
 package com.eduardocarlos.productivityApp.controller;
 
 import com.eduardocarlos.productivityApp.models.Task;
-import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.services.TaskService;
 
 import jakarta.validation.Valid;
 
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +12,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/task")
@@ -25,6 +22,16 @@ public class TaskController {
 
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Task> findById(@PathVariable Long id) {
+        try {
+            Task task = this.taskService.findById(id);
+            return ResponseEntity.ok().body(task);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @GetMapping("/user/{user_id}")
