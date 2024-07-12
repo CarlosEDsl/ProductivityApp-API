@@ -1,5 +1,6 @@
 package com.eduardocarlos.productivityApp.models;
 
+import com.eduardocarlos.productivityApp.models.enums.Month;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -29,7 +30,11 @@ public class MonthStatistic {
 
     @Column(nullable = false)
     @NotBlank
-    private LocalDate month;
+    private Month month;
+
+    @Column(nullable = false)
+    @NotBlank
+    private LocalDate year;
 
     @Column
     private Float avgConclusions;
