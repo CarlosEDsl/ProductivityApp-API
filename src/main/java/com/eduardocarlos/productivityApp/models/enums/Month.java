@@ -11,4 +11,14 @@ public enum Month {
     public int getValue(){
         return this.month;
     }
+
+    public static Month fromValue(int value) {
+        for (Month month : Month.values()) {
+            if (month.getValue() == value) {
+                return month;
+            }
+        }
+        throw new IllegalArgumentException("Unknown month value: " + value);
+    }
+
 }

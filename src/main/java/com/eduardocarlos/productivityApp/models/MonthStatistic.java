@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -34,12 +35,12 @@ public class MonthStatistic {
 
     @Column(nullable = false)
     @NotBlank
-    private LocalDate year;
+    private LocalDate date;
 
     @Column
-    private Float avgConclusions;
+    private BigDecimal avgConclusions;
 
     @Column
-    private Float avgHoursPDay;
+    private BigDecimal avgHoursPDay;
 
 }

@@ -2,6 +2,7 @@ package com.eduardocarlos.productivityApp.repositories;
 
 import com.eduardocarlos.productivityApp.models.MonthStatistic;
 
+import com.eduardocarlos.productivityApp.models.enums.Month;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +13,5 @@ public interface MonthStatisticRepository extends JpaRepository<MonthStatistic, 
 
     List<MonthStatistic> findAllByUser_Id(Long id);
 
-    MonthStatistic findByUser_IdAndMonth(Long user_id, @NotBlank LocalDate month);
+    MonthStatistic findByUser_IdAndMonth(Long user_id, @NotBlank Month month);
 }
