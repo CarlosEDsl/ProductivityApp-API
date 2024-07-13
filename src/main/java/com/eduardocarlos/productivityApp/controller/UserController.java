@@ -3,7 +3,7 @@ package com.eduardocarlos.productivityApp.controller;
 import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.dtos.DateStatisticDTO;
-import com.eduardocarlos.productivityApp.models.enums.Month;
+
 import com.eduardocarlos.productivityApp.services.MonthStatisticService;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
@@ -17,7 +17,6 @@ import java.net.URI;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
