@@ -7,8 +7,8 @@ import com.eduardocarlos.productivityApp.models.enums.Month;
 import com.eduardocarlos.productivityApp.repositories.MonthStatisticRepository;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
+
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,10 +23,12 @@ public class MonthStatisticService {
 
     private final MonthStatisticRepository monthStatisticRepository;
     private final TaskRepository taskRepository;
+    private final StringHttpMessageConverter stringHttpMessageConverter;
 
-    public MonthStatisticService(MonthStatisticRepository monthStatisticRepository, TaskRepository taskRepository){
+    public MonthStatisticService(MonthStatisticRepository monthStatisticRepository, TaskRepository taskRepository, StringHttpMessageConverter stringHttpMessageConverter){
         this.monthStatisticRepository = monthStatisticRepository;
         this.taskRepository = taskRepository;
+        this.stringHttpMessageConverter = stringHttpMessageConverter;
     }
 
     public MonthStatistic create(User user, LocalDateTime firstDate){
@@ -46,6 +48,15 @@ public class MonthStatisticService {
         monthStatistic.setAvgConclusions(new BigDecimal(0));
 
         return this.monthStatisticRepository.save(monthStatistic);
+    }
+
+    public MonthStatistic findByUserAndDate(User user, Month month, Integer year) {
+        Optional<MonthStatistic> monthStatistic = this.monthStatisticRepository
+                                                    .findByUser_IdAndMonthAndYear(user.getId(), month, year);
+        if(monthStatistic.isPresent()){
+            return monthStatistic.get();
+        }
+        throw new RuntimeException();
     }
 
     //Update will just change the metrics of one month
@@ -73,8 +84,16 @@ public class MonthStatisticService {
         List<Task> completedTasks = tasks.stream()
                 .filter(task -> Objects.nonNull(task.getFinishDate()))
                 .toList();
+        BigDecimal percConclusion;
 
-        BigDecimal percConclusions = new BigDecimal(completedTasks.size()).divide(new BigDecimal(tasks.size()), new MathContext(5));
-        return percConclusions;
+        //Handling 0 tasks
+        try{
+            percConclusion = new BigDecimal(completedTasks.size()).divide(new BigDecimal(tasks.size()),
+                    new MathContext(5));
+        } catch (ArithmeticException e) {
+            percConclusion = BigDecimal.ZERO;
+        }
+
+        return percConclusion;
     }
 }

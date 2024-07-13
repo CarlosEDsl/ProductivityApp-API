@@ -35,7 +35,7 @@ public class TaskService {
     }
 
     public Task findById(Long id) throws ChangeSetPersister.NotFoundException {
-        return this.taskRepository.findById(id).orElseThrow();
+        return this.taskRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
     }
 
 
@@ -91,7 +91,9 @@ public class TaskService {
     //DELETE
     public void delete(Long id) {
         try{
+            Optional<Task> taskOp = this.taskRepository.findById(id);
             this.taskRepository.deleteById(id);
+            taskOp.ifPresent(task -> this.monthStatisticService.update(task.getUser(), task.getTerm()));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
