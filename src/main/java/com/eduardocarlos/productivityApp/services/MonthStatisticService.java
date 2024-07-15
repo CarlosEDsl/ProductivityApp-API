@@ -8,7 +8,6 @@ import com.eduardocarlos.productivityApp.repositories.MonthStatisticRepository;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,12 +22,10 @@ public class MonthStatisticService {
 
     private final MonthStatisticRepository monthStatisticRepository;
     private final TaskRepository taskRepository;
-    private final StringHttpMessageConverter stringHttpMessageConverter;
 
-    public MonthStatisticService(MonthStatisticRepository monthStatisticRepository, TaskRepository taskRepository, StringHttpMessageConverter stringHttpMessageConverter){
+    public MonthStatisticService(MonthStatisticRepository monthStatisticRepository, TaskRepository taskRepository){
         this.monthStatisticRepository = monthStatisticRepository;
         this.taskRepository = taskRepository;
-        this.stringHttpMessageConverter = stringHttpMessageConverter;
     }
 
     public MonthStatistic create(User user, LocalDateTime firstDate){

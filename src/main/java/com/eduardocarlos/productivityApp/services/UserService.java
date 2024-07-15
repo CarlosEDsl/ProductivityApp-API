@@ -3,13 +3,10 @@ package com.eduardocarlos.productivityApp.services;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.repositories.UserRepository;
 
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService {
