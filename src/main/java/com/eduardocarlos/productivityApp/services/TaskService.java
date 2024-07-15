@@ -9,6 +9,7 @@ import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +41,7 @@ public class TaskService {
 
 
     //CREATE
+    @Transactional
     public Task create(Task task) {
 
         User user = this.userService.findById(task.getUser().getId());
@@ -58,6 +60,7 @@ public class TaskService {
 
 
     //UPDATE
+    @Transactional
     public Task update(Task task) {
         Optional<Task> updatedTask = this.taskRepository.findById(task.getId());
         if(updatedTask.isEmpty())

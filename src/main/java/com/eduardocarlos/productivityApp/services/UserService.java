@@ -3,7 +3,9 @@ package com.eduardocarlos.productivityApp.services;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.repositories.UserRepository;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,8 +14,10 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
     }
 
@@ -43,18 +47,22 @@ public class UserService {
     }
 
     //Create
+    @Transactional
     public User create(User user) {
         user.setId(null);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userRepository.save(user);
     }
 
     //Update
+    @Transactional
     public User update(User user) {
         User updatedUser = this.findById(user.getId());
         updatedUser.setEmail(user.getEmail());
         updatedUser.setName(user.getName());
         updatedUser.setCell(user.getCell());
-        updatedUser.setPassword(user.getPassword());
+        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
 
         return this.userRepository.save(updatedUser);
     }

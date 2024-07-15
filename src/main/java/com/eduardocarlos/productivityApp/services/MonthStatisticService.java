@@ -9,6 +9,7 @@ import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -28,6 +29,7 @@ public class MonthStatisticService {
         this.taskRepository = taskRepository;
     }
 
+    @Transactional
     public MonthStatistic create(User user, LocalDateTime firstDate){
         MonthStatistic monthStatistic = new MonthStatistic();
 
@@ -57,6 +59,7 @@ public class MonthStatisticService {
     }
 
     //Update will just change the metrics of one month
+    @Transactional
     public void update(User user, LocalDateTime term) {
 
         Optional<MonthStatistic> updatedStatisticsOp = this.monthStatisticRepository
