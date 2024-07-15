@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Objects;
 
 @Component
-public class JWTutil {
+public class JWTutils {
     @Value("${jwt.secret}")
     private String jwtSecret;
     @Value("${jwt.expiration}")
