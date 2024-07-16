@@ -1,12 +1,17 @@
 package com.eduardocarlos.productivityApp.security;
 
+import com.eduardocarlos.productivityApp.services.UserDetailsImpl;
+
 import io.jsonwebtoken.Jwts;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
 
 import javax.crypto.SecretKey;
+
 import java.util.Date;
 import java.util.Objects;
 
@@ -21,10 +26,10 @@ public class JWTutils {
         return Keys.hmacShaKeyFor(this.jwtSecret.getBytes());
     }
 
-    public String generateToken(String login) {
+    public String generateToken(UserDetailsImpl userDetail) {
         SecretKey key = this.getKeyBySecret();
 
-        return Jwts.builder().content(login)
+        return Jwts.builder().content(userDetail.getUsername())
                 .signWith(key).expiration(new Date(System.currentTimeMillis() + this.jwtExpiration))
                 .compact();
     }
