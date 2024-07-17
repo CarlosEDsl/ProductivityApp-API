@@ -1,5 +1,6 @@
 package com.eduardocarlos.productivityApp.models;
 
+import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -39,5 +40,9 @@ public class User {
     @Column(length = 15)
     @Size(max=15)
     private String cell;
+
+    @Column
+    @Enumerated
+    private ProfileEnum profile;
 
 }

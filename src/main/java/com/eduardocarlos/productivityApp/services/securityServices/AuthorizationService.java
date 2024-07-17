@@ -1,0 +1,32 @@
+package com.eduardocarlos.productivityApp.services.securityServices;
+
+import com.eduardocarlos.productivityApp.models.User;
+import com.eduardocarlos.productivityApp.repositories.UserRepository;
+import com.eduardocarlos.productivityApp.services.UserDetailsImpl;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class AuthorizationService implements UserDetailsService {
+
+    UserRepository userRepository;
+    AuthorizationService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> user = this.userRepository.findByEmail(email);
+
+        if(user.isEmpty()){
+            throw new UsernameNotFoundException("User not found: " + email);
+        }
+        User user1 = user.get();
+
+        return new UserDetailsImpl(user1.getId(), user1.getEmail(), user1.getPassword(), user1.getProfile());
+    }
+}
