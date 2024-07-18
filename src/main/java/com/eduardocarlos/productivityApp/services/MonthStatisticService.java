@@ -43,8 +43,8 @@ public class MonthStatisticService {
         monthStatistic.setMonth(month);
 
         //Creating metrics with de amount of tasks in user tasks
-        monthStatistic.setAvgHoursPDay(this.avgConclusionsCalculate(this.taskRepository.findAllByUser_Id(user.getId())));
-        monthStatistic.setAvgConclusions(new BigDecimal(0));
+        monthStatistic.setTotalHours(new BigDecimal(0));
+        monthStatistic.setAvgConclusions(this.avgConclusionsCalculate(this.taskRepository.findAllByUser_Id(user.getId())));
 
         return this.monthStatisticRepository.save(monthStatistic);
     }
@@ -75,8 +75,23 @@ public class MonthStatisticService {
         });
     }
 
+    @Transactional
+    public MonthStatistic addHoursToMonth(Long id, BigDecimal hours){
+        MonthStatistic monthS = this.findById(id);
+        monthS.setTotalHours(monthS.getTotalHours().add(hours));
+        return monthS;
+    }
+
     public Optional<MonthStatistic> findByMonth(Long user_id, Month month, Integer year) {
         return this.monthStatisticRepository.findByUser_IdAndMonthAndYear(user_id, month, year);
+    }
+
+    public MonthStatistic findById(Long id){
+        Optional<MonthStatistic> monthStatistic = this.monthStatisticRepository.findById(id);
+        if(monthStatistic.isPresent()){
+            return monthStatistic.get();
+        }
+        throw new RuntimeException("Not found");
     }
 
     //Method to calculate the percentage of tasks finished

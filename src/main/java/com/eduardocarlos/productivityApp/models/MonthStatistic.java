@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.Year;
 
 @Entity
 @Table(name = MonthStatistic.table_name)
@@ -42,6 +40,6 @@ public class MonthStatistic {
     private BigDecimal avgConclusions;
 
     @Column
-    private BigDecimal avgHoursPDay;
+    private BigDecimal totalHours;
 
 }
