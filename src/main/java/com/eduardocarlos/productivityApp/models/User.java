@@ -1,6 +1,7 @@
 package com.eduardocarlos.productivityApp.models;
 
 import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -41,8 +43,10 @@ public class User {
     @Size(max=15)
     private String cell;
 
-    @Column
-    @Enumerated
-    private ProfileEnum profile;
+    @Column(name = "profile", nullable = false)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @CollectionTable(name = "user_profile")
+    private List<ProfileEnum> profiles;
 
 }
