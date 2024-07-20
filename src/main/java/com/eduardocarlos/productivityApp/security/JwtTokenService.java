@@ -2,6 +2,7 @@ package com.eduardocarlos.productivityApp.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,19 +14,19 @@ import java.util.Objects;
 @Service
 public class JwtTokenService {
 
-    @Value("{jwt.secret}")
-    private String secretkey;
-    @Value("{jwt.expiration}")
-    private String expiration;
+    @Value("${jwt.secret}")
+    private String secretKey;
+    @Value("${jwt.expiration}")
+    private long expiration;
 
     public String generateToken(UserDetailsImpl user){
 
-        SecretKey key = Keys.hmacShaKeyFor(this.secretkey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
 
         return Jwts.builder()
-                .content(user.getUsername())
-                .signWith(key)
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .setSubject(user.getUsername())  // Set the subject to the username
+                .signWith(key, SignatureAlgorithm.HS256)  // Sign with the key
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))  // Set expiration
                 .compact();
     }
 
@@ -54,12 +55,15 @@ public class JwtTokenService {
 
     private Claims getClaims(String token){
 
-        SecretKey key = Keys.hmacShaKeyFor(this.secretkey.getBytes());
-
-        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        SecretKey key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
 
         try{
-            return claims;
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
         } catch(Exception e){
             throw new RuntimeException(e);
         }
@@ -68,5 +72,5 @@ public class JwtTokenService {
 
 
 
-    
+
 }

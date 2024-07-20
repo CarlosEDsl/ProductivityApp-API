@@ -35,12 +35,6 @@ public class UserService {
                 .orElseThrow(()-> new RuntimeException("User not found"));
     }
 
-    public User findByUsername(String username) {
-        Optional<User> user = this.userRepository.findByName(username);
-        return user
-                .orElseThrow(()-> new RuntimeException("User not found"));
-    }
-
     public List<User> findAll() {
         List<User> users = this.userRepository.findAll();
         return users;

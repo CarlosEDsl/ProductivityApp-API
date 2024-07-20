@@ -1,40 +1,60 @@
 package com.eduardocarlos.productivityApp.configs;
 
+import com.eduardocarlos.productivityApp.security.JwtAuthenticationFilter;
+import com.eduardocarlos.productivityApp.security.JwtTokenService;
+import com.eduardocarlos.productivityApp.services.UserDetailsImplService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    public static final String [] ENDPOINTS_WITHOUT_AUTHENTICATION_REQUIRED = {
-            "/users/login", //login
-            "/users" //creation
+    private final UserDetailsImplService userDetailsImplService;
+    private final JwtTokenService jwtTokenService;
+
+    public SecurityConfig(UserDetailsImplService userDetailsImplService, JwtTokenService jwtTokenService) {
+        this.userDetailsImplService = userDetailsImplService;
+        this.jwtTokenService = jwtTokenService;
+    }
+
+    public static final String[] ENDPOINTS_WITHOUT_AUTHENTICATION_REQUIRED = {
+            "/login", // login
+            "/user" // creation
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+        http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                        .requestMatchers("/login").permitAll())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+                        .requestMatchers(ENDPOINTS_WITHOUT_AUTHENTICATION_REQUIRED).permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.addFilterBefore(new JwtAuthenticationFilter(authenticationManager, this.jwtTokenService), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(this.userDetailsImplService).passwordEncoder(encoder());
+        return authenticationManagerBuilder.build();
     }
 
     @Bean
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-
 }

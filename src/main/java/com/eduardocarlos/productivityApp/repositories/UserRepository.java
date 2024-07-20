@@ -12,9 +12,6 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Transactional(readOnly = true)
-    Optional<User> findByName(String username);
-
-    @Transactional(readOnly = true)
     Optional<User> findByEmail(String email);
 
 }
