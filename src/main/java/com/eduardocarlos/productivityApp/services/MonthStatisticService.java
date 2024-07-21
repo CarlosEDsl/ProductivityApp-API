@@ -76,9 +76,15 @@ public class MonthStatisticService {
     }
 
     @Transactional
-    public MonthStatistic addHoursToMonth(Long id, BigDecimal hours){
-        MonthStatistic monthS = this.findById(id);
-        monthS.setTotalHours(monthS.getTotalHours().add(hours));
+    public MonthStatistic addHoursToMonth(User user, Integer month, Integer year, BigDecimal hours){
+        Month monthEnum = Month.fromValue(month);
+        MonthStatistic monthS = this.findByUserAndDate(user, monthEnum, year);
+        if(Objects.nonNull(monthS.getTotalHours())){
+            monthS.setTotalHours(monthS.getTotalHours().add(hours));
+        } else{
+            monthS.setTotalHours(hours);
+        }
+
         return monthS;
     }
 

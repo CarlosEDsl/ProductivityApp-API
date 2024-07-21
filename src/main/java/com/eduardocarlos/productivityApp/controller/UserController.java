@@ -2,21 +2,25 @@ package com.eduardocarlos.productivityApp.controller;
 
 import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.User;
+import com.eduardocarlos.productivityApp.models.dtos.AddHoursDTO;
 import com.eduardocarlos.productivityApp.models.dtos.DateStatisticDTO;
 
 import com.eduardocarlos.productivityApp.services.MonthStatisticService;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/user")
@@ -74,6 +78,17 @@ public class UserController{
         String email = (String) payload.get("email");
         this.userService.delete(id, email);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{user_id}")
+    public ResponseEntity<MonthStatistic> addHoursToMonth(@PathVariable Long user_id, @RequestBody AddHoursDTO addHours) {
+        if(Objects.nonNull(addHours) && addHours.hours() > 0) {
+            BigDecimal hours = new BigDecimal(addHours.hours());
+            User user = this.userService.findById(user_id);
+            return ResponseEntity.ok().body(this.monthStatisticService.addHoursToMonth(user, addHours.month(), addHours.year(), hours));
+        }
+        return ResponseEntity.unprocessableEntity().build();
+
     }
 
 }
