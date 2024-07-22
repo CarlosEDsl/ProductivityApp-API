@@ -1,8 +1,7 @@
 package com.eduardocarlos.productivityApp.security;
 
+import com.eduardocarlos.productivityApp.exceptions.GlobalExceptionHandler;
 import com.eduardocarlos.productivityApp.models.User;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +23,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final JwtTokenService jwtTokenService;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtTokenService jwtTokenService) {
+        setAuthenticationFailureHandler(new GlobalExceptionHandler());
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
     }
@@ -41,10 +41,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             Authentication auth = this.authenticationManager.authenticate(token);
             return auth;
 
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
