@@ -4,7 +4,9 @@ import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.Task;
 import com.eduardocarlos.productivityApp.models.User;
 
+import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
+import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -32,11 +34,24 @@ public class TaskService {
 
     //FIND
     public List<Task> findAllByUser(Long id) {
+        UserDetailsImpl user = UserService.authenticated();
+        if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), id)){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
         return this.taskRepository.findAllByUser_Id(id);
     }
 
     public Task findById(Long id) throws ChangeSetPersister.NotFoundException {
-        return this.taskRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Optional<Task> task = this.taskRepository.findById(id);
+        if(task.isEmpty()){
+            throw new RuntimeException("TASK NOT FOUND");
+        }
+        UserDetailsImpl user = UserService.authenticated();
+        if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.get().getUser().getId())){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
+
+        return task.orElseThrow(ChangeSetPersister.NotFoundException::new);
     }
 
 
@@ -45,6 +60,10 @@ public class TaskService {
     public Task create(Task task) {
 
         User user = this.userService.findById(task.getUser().getId());
+        UserDetailsImpl userDetails = UserService.authenticated();
+        if(!Objects.nonNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getId(), user.getId())){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
         task.setId(null);
         task.setUser(user);
 
@@ -63,6 +82,12 @@ public class TaskService {
     @Transactional
     public Task update(Task task) {
         Optional<Task> updatedTask = this.taskRepository.findById(task.getId());
+
+        UserDetailsImpl user = UserService.authenticated();
+        if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.getUser().getId())){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
+
         if(updatedTask.isEmpty())
             throw new RuntimeException("task not found");
 
@@ -95,6 +120,16 @@ public class TaskService {
     public void delete(Long id) {
         try{
             Optional<Task> taskOp = this.taskRepository.findById(id);
+
+            if(taskOp.isEmpty()){
+                throw new RuntimeException("Task not found");
+            }
+
+            UserDetailsImpl user = UserService.authenticated();
+            if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), taskOp.get().getUser().getId())){
+                throw new RuntimeException("UNAUTHORIZED");
+            }
+
             this.taskRepository.deleteById(id);
             taskOp.ifPresent(task -> this.monthStatisticService.update(task.getUser(), task.getTerm()));
         } catch (Exception e) {

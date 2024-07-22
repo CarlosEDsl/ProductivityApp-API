@@ -1,12 +1,14 @@
 package com.eduardocarlos.productivityApp.security;
 
 import com.eduardocarlos.productivityApp.models.User;
+import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -19,7 +21,10 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getProfiles().stream().map(profile -> new SimpleGrantedAuthority(profile.getRole())).collect(Collectors.toList());
+        List<SimpleGrantedAuthority> authorities = user.getProfiles().stream()
+                .map(profile -> new SimpleGrantedAuthority(profile.getRole()))
+                .toList();
+        return authorities;
     }
 
     @Override
@@ -50,5 +55,9 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean hasRole(ProfileEnum profile){
+        return getAuthorities().contains(new SimpleGrantedAuthority(profile.getRole()));
     }
 }

@@ -4,8 +4,10 @@ import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.Task;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.enums.Month;
+import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.MonthStatisticRepository;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
+import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.stereotype.Service;
@@ -77,6 +79,12 @@ public class MonthStatisticService {
 
     @Transactional
     public MonthStatistic addHoursToMonth(User user, Integer month, Integer year, BigDecimal hours){
+
+        UserDetailsImpl userDetails = UserService.authenticated();
+        if(!Objects.nonNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getId(), user.getId())){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
+
         Month monthEnum = Month.fromValue(month);
         MonthStatistic monthS = this.findByUserAndDate(user, monthEnum, year);
         if(Objects.nonNull(monthS.getTotalHours())){
@@ -93,11 +101,19 @@ public class MonthStatisticService {
     }
 
     public MonthStatistic findById(Long id){
+
         Optional<MonthStatistic> monthStatistic = this.monthStatisticRepository.findById(id);
-        if(monthStatistic.isPresent()){
-            return monthStatistic.get();
+
+        if(monthStatistic.isEmpty()){
+            throw new RuntimeException("MONTH NOT FOUND");
         }
-        throw new RuntimeException("Not found");
+
+        UserDetailsImpl user = UserService.authenticated();
+        if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), monthStatistic.get().getUser().getId())){
+            throw new RuntimeException("UNAUTHORIZED");
+        }
+
+        return monthStatistic.get();
     }
 
     //Method to calculate the percentage of tasks finished
