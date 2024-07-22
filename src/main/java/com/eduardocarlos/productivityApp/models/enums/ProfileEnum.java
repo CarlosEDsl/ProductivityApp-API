@@ -14,7 +14,7 @@ public enum ProfileEnum {
     private final Integer code;
     private final String role;
     public static ProfileEnum toEnum(Integer code){
-        if(Objects.nonNull(code))
+        if(Objects.isNull(code))
             return null;
         for(ProfileEnum i : ProfileEnum.values()) {
             if(code.equals(i.getCode()))
