@@ -1,6 +1,7 @@
 package com.eduardocarlos.productivityApp.security;
 
 import com.eduardocarlos.productivityApp.services.UserDetailsImplService;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthenticatedUserException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +52,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     null,
                     user.getAuthorities());
         }
-        return null;
+        throw new UnauthenticatedUserException();
     }
 
 }

@@ -5,7 +5,8 @@ import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.UserRepository;
 
 import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
-import org.hibernate.ObjectNotFoundException;
+import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,28 +34,26 @@ public class UserService {
     public User findById(Long id) {
     UserDetailsImpl user = authenticated();
         if(Objects.isNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), id)){
-                throw new RuntimeException("UNAUTHORIZED USER SEARCHING FOR ANOTHER USER");
+                throw new UnauthorizedUserException("trying to find another user");
         }
-        return this.userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException(
-                User.class, "User not found id: " + id
-        ));
+        return this.userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User not found id: " + id));
 
     }
 
     public User findByEmail(String email) {
         UserDetailsImpl userDetails = authenticated();
         if(Objects.isNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getEmail(), email)){
-            throw new RuntimeException("UNAUTHORIZED USER SEARCHING FOR ANOTHER USER");
+            throw new UnauthorizedUserException("trying to find another user");
         }
         Optional<User> user = this.userRepository.findByEmail(email);
         return user
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new ObjectNotFoundException("User not found with email search"));
     }
 
     public List<User> findAll() {
         UserDetailsImpl userDetails = authenticated();
         if(Objects.isNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN)){
-            throw new RuntimeException("UNAUTHORIZED USER SEARCHING FOR ANOTHER USER");
+            throw new UnauthorizedUserException("trying to see all users");
         }
         List<User> users = this.userRepository.findAll();
         return users;
@@ -75,7 +74,7 @@ public class UserService {
     public User update(User user) {
         UserDetailsImpl userDetails = authenticated();
         if(Objects.isNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getId(), user.getId())){
-            throw new RuntimeException("UNAUTHORIZED USER SEARCHING FOR ANOTHER USER");
+            throw new UnauthorizedUserException("trying to update another user");
         }
         User updatedUser = this.findById(user.getId());
         updatedUser.setEmail(user.getEmail());
@@ -91,10 +90,16 @@ public class UserService {
         UserDetailsImpl userDetails = authenticated();
         if(Objects.isNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) &&
                 !Objects.equals(userDetails.getUser().getEmail(), email) || !Objects.equals(userDetails.getUser().getId(), id)){
-            throw new RuntimeException("UNAUTHORIZED USER SEARCHING FOR ANOTHER USER");
+            throw new UnauthorizedUserException("trying to delete another user");
         }
-        User user = this.findByEmail(email);
-        if(!user.equals(this.findById(id))) {
+
+        User user = this.findById(id);
+        if(Objects.isNull(user)) {
+            throw new ObjectNotFoundException("User not found id: " + id);
+        }
+
+        User userByEmail = this.findByEmail(email);
+        if(!userByEmail.equals(user)) {
             throw new RuntimeException("User and ID dont match");
         }
 

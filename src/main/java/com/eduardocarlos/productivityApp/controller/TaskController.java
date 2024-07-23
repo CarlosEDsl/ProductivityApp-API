@@ -3,8 +3,10 @@ package com.eduardocarlos.productivityApp.controller;
 import com.eduardocarlos.productivityApp.models.Task;
 import com.eduardocarlos.productivityApp.services.TaskService;
 
+import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
 import jakarta.validation.Valid;
 
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +27,9 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Task> findById(@PathVariable Long id) {
-        try {
-            Task task = this.taskService.findById(id);
-            return ResponseEntity.ok().body(task);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+    public ResponseEntity<Task> findById(@PathVariable Long id) throws ChangeSetPersister.NotFoundException {
+        Task task = this.taskService.findById(id);
+        return ResponseEntity.ok().body(task);
     }
 
     @GetMapping("/user/{user_id}")
@@ -42,11 +40,10 @@ public class TaskController {
 
     @PostMapping()
     public ResponseEntity<Task> create(@Valid @RequestBody Task task) {
-        this.taskService.create(task);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(task.getId()).toUri();
-        return ResponseEntity.created(uri).build();
+        return ResponseEntity.created(uri).body(this.taskService.create(task));
     }
 
     @PutMapping("/{id}")

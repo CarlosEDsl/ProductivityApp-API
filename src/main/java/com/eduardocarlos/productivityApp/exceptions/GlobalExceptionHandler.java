@@ -1,9 +1,14 @@
 package com.eduardocarlos.productivityApp.exceptions;
 
+import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthenticatedUserException;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,12 +17,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j(topic = "GLOBAL_EXCEPTION_HANDLER")
 @RestControllerAdvice
@@ -26,22 +33,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @Value("${server.error.include-exception}")
     private boolean printstackTrace;
 
-    @Override
-    @ResponseStatus
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException methodArgumentNotValidException,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.UNPROCESSABLE_ENTITY.value(),
-                "Validation error. Check 'errors' field for details");
-        for (FieldError fieldError : methodArgumentNotValidException.getBindingResult().getFieldErrors()) {
-            errorResponse.addValidationError(fieldError.getField(), fieldError.getDefaultMessage());
+    @ExceptionHandler(UnauthenticatedUserException.class)
+    private ResponseEntity<ErrorResponse> unauthenticatedUserHandler(UnauthenticatedUserException unauthenticatedUserException){
+        ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), unauthenticatedUserException.getMessage());
+        if(printstackTrace){
+            error.setStackTree(Arrays.toString(unauthenticatedUserException.getStackTrace()));
         }
-        return ResponseEntity.unprocessableEntity().body(errorResponse);
+        return ResponseEntity.status(error.getStatus()).body(error);
+
     }
 
+    @ExceptionHandler(ObjectNotFoundException.class)
+    private ResponseEntity<ErrorResponse> objectNotFoundHandler(ObjectNotFoundException exception){
+        ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage());
+        if(printstackTrace){
+            error.setStackTree(Arrays.toString(exception.getStackTrace()));
+        }
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(UnauthorizedUserException.class)
+    private ResponseEntity<ErrorResponse> unauthorizedUserHandler(UnauthorizedUserException exception) {
+        ErrorResponse error =  new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
+        if(printstackTrace){
+            error.setStackTree(Arrays.toString(exception.getStackTrace()));
+        }
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

@@ -7,6 +7,8 @@ import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
+import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -36,7 +38,7 @@ public class TaskService {
     public List<Task> findAllByUser(Long id) {
         UserDetailsImpl user = UserService.authenticated();
         if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), id)){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying to access unauthorized list of tasks");
         }
         return this.taskRepository.findAllByUser_Id(id);
     }
@@ -44,12 +46,13 @@ public class TaskService {
     public Task findById(Long id) throws ChangeSetPersister.NotFoundException {
         Optional<Task> task = this.taskRepository.findById(id);
         if(task.isEmpty()){
-            throw new RuntimeException("TASK NOT FOUND");
+            throw new ObjectNotFoundException("TASK NOT FOUND ID: " + id);
         }
         UserDetailsImpl user = UserService.authenticated();
         if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.get().getUser().getId())){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying to see another user task");
         }
+
 
         return task.orElseThrow(ChangeSetPersister.NotFoundException::new);
     }
@@ -62,7 +65,7 @@ public class TaskService {
         User user = this.userService.findById(task.getUser().getId());
         UserDetailsImpl userDetails = UserService.authenticated();
         if(!Objects.nonNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getId(), user.getId())){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying create a task for another user");
         }
         task.setId(null);
         task.setUser(user);
@@ -85,11 +88,11 @@ public class TaskService {
 
         UserDetailsImpl user = UserService.authenticated();
         if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.getUser().getId())){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying to update task from another user");
         }
 
         if(updatedTask.isEmpty())
-            throw new RuntimeException("task not found");
+            throw new ObjectNotFoundException("task not found for update");
 
         updatedTask.ifPresent(taskToUpdate -> {
             if (Objects.nonNull(task.getName())) {
@@ -105,10 +108,8 @@ public class TaskService {
                 if(this.monthVerifier(task.getTerm(), task.getUser().getId()))
                     this.monthStatisticService.create(taskToUpdate.getUser(), taskToUpdate.getTerm());
             }
-            if (Objects.nonNull(task.getFinishDate())) {
-                taskToUpdate.setFinishDate(task.getFinishDate());
-                this.monthStatisticService.update(taskToUpdate.getUser(), taskToUpdate.getTerm());
-            }
+            taskToUpdate.setFinishDate(task.getFinishDate());
+            this.monthStatisticService.update(taskToUpdate.getUser(), taskToUpdate.getTerm());
         });
 
         return this.taskRepository.save(updatedTask.get());
@@ -122,12 +123,12 @@ public class TaskService {
             Optional<Task> taskOp = this.taskRepository.findById(id);
 
             if(taskOp.isEmpty()){
-                throw new RuntimeException("Task not found");
+                throw new ObjectNotFoundException("Task not found for delete");
             }
 
             UserDetailsImpl user = UserService.authenticated();
             if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), taskOp.get().getUser().getId())){
-                throw new RuntimeException("UNAUTHORIZED");
+                throw new UnauthorizedUserException("trying to delete a task from another user");
             }
 
             this.taskRepository.deleteById(id);

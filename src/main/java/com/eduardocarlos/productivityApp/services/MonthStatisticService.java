@@ -8,6 +8,8 @@ import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.MonthStatisticRepository;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
+import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
+import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
 
 import org.springframework.stereotype.Service;
@@ -57,7 +59,7 @@ public class MonthStatisticService {
         if(monthStatistic.isPresent()){
             return monthStatistic.get();
         }
-        throw new RuntimeException();
+        throw new ObjectNotFoundException(MonthStatistic.class);
     }
 
     //Update will just change the metrics of one month
@@ -82,11 +84,16 @@ public class MonthStatisticService {
 
         UserDetailsImpl userDetails = UserService.authenticated();
         if(!Objects.nonNull(userDetails) || !userDetails.hasRole(ProfileEnum.ADMIN) && !Objects.equals(userDetails.getUser().getId(), user.getId())){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying to add hours to another user");
         }
 
         Month monthEnum = Month.fromValue(month);
         MonthStatistic monthS = this.findByUserAndDate(user, monthEnum, year);
+
+        if(Objects.isNull(monthS)){
+            throw new ObjectNotFoundException(MonthStatistic.class);
+        }
+
         if(Objects.nonNull(monthS.getTotalHours())){
             monthS.setTotalHours(monthS.getTotalHours().add(hours));
         } else{
@@ -105,12 +112,12 @@ public class MonthStatisticService {
         Optional<MonthStatistic> monthStatistic = this.monthStatisticRepository.findById(id);
 
         if(monthStatistic.isEmpty()){
-            throw new RuntimeException("MONTH NOT FOUND");
+            throw new ObjectNotFoundException(MonthStatistic.class);
         }
 
         UserDetailsImpl user = UserService.authenticated();
         if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), monthStatistic.get().getUser().getId())){
-            throw new RuntimeException("UNAUTHORIZED");
+            throw new UnauthorizedUserException("trying to get the month statistic from another user");
         }
 
         return monthStatistic.get();
