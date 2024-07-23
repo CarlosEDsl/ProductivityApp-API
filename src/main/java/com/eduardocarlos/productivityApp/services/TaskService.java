@@ -132,7 +132,7 @@ public class TaskService {
             this.taskRepository.deleteById(id);
             taskOp.ifPresent(task -> this.monthStatisticService.update(task.getUser(), task.getTerm()));
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw new ObjectNotFoundException("Task not found to delete");
         }
     }
 
