@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 
 @Slf4j(topic = "GLOBAL_EXCEPTION_HANDLER")
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
 
     @Value("${server.error.include-exception}")
     private boolean printstackTrace;
+
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    private ResponseEntity<ErrorResponse> SQLIntegrityConstraitViolationHandler(SQLIntegrityConstraintViolationException exception){
+        ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage());
+        if(printstackTrace){
+            error.setStackTree(Arrays.toString(exception.getStackTrace()));
+        }
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
 
     @ExceptionHandler(UnauthenticatedUserException.class)
     private ResponseEntity<ErrorResponse> unauthenticatedUserHandler(UnauthenticatedUserException unauthenticatedUserException){

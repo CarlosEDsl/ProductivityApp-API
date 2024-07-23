@@ -1,9 +1,9 @@
 package com.eduardocarlos.productivityApp.controller;
 
 import com.eduardocarlos.productivityApp.models.Task;
+import com.eduardocarlos.productivityApp.models.dtos.TaskDTO;
 import com.eduardocarlos.productivityApp.services.TaskService;
 
-import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
 import jakarta.validation.Valid;
 
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -39,7 +39,8 @@ public class TaskController {
     }
 
     @PostMapping()
-    public ResponseEntity<Task> create(@Valid @RequestBody Task task) {
+    public ResponseEntity<Task> create(@Valid @RequestBody TaskDTO taskDTO) {
+        Task task = taskDTO.fromDTO();
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(task.getId()).toUri();
@@ -47,7 +48,8 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody Task task){
+    public ResponseEntity<Task> update(@PathVariable Long id, @RequestBody TaskDTO taskDTO){
+        Task task = taskDTO.fromDTO();
         task.setId(id);
         return ResponseEntity.ok().body(this.taskService.update(task));
     }

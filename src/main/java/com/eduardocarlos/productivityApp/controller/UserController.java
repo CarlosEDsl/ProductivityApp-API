@@ -5,6 +5,7 @@ import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.dtos.AddHoursDTO;
 import com.eduardocarlos.productivityApp.models.dtos.DateStatisticDTO;
 
+import com.eduardocarlos.productivityApp.models.dtos.UserDTO;
 import com.eduardocarlos.productivityApp.services.MonthStatisticService;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
@@ -42,8 +43,8 @@ public class UserController{
     }
 
     @PostMapping
-    public ResponseEntity<Void> create(@Valid @RequestBody User user) {
-        User newUser = this.userService.create(user);
+    public ResponseEntity<Void> create(@Valid @RequestBody UserDTO user) {
+        User newUser = this.userService.create(user.fromDTO());
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -66,7 +67,8 @@ public class UserController{
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User user){
+    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO){
+        User user = userDTO.fromDTO();
         user.setId(id);
         User updatedUser = this.userService.update(user);
         return ResponseEntity.ok().body(updatedUser);

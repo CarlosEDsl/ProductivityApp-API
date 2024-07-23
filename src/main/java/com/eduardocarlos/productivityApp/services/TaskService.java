@@ -52,9 +52,7 @@ public class TaskService {
         if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.get().getUser().getId())){
             throw new UnauthorizedUserException("trying to see another user task");
         }
-
-
-        return task.orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return task.get();
     }
 
 
