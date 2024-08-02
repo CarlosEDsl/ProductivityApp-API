@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.io.IOException;
@@ -18,8 +17,8 @@ import java.util.Objects;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private JwtTokenService jwtTokenService;
-    private UserDetailsImplService userDetailsService;
+    private final JwtTokenService jwtTokenService;
+    private final UserDetailsImplService userDetailsService;
 
     public JwtAuthorizationFilter(JwtTokenService jwtTokenService, UserDetailsImplService userDetailsImplService, AuthenticationManager authenticationManager){
         super(authenticationManager);

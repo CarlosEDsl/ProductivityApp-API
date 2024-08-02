@@ -2,7 +2,6 @@ package com.eduardocarlos.productivityApp.security;
 
 import com.eduardocarlos.productivityApp.exceptions.GlobalExceptionHandler;
 import com.eduardocarlos.productivityApp.models.User;
-import com.eduardocarlos.productivityApp.services.exceptions.UnauthenticatedUserException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -57,6 +55,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = this.jwtTokenService.generateToken(user);
         response.addHeader("Authorization", "Bearer " + token);
         response.addHeader("access-control-expose-headers", "Authorization");
+        response.addHeader("UserId", user.getUser().getId().toString());
+        response.addHeader("access-control-expose-headers", "UserId");
     }
 
 }
