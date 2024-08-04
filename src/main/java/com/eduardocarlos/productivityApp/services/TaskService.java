@@ -7,6 +7,7 @@ import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.TaskRepository;
 import com.eduardocarlos.productivityApp.security.UserDetailsImpl;
+import com.eduardocarlos.productivityApp.services.exceptions.BeforeNowModificationException;
 import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
 import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
 import com.eduardocarlos.productivityApp.utils.DateFormater;
@@ -68,6 +69,8 @@ public class TaskService {
         task.setId(null);
         task.setUser(user);
 
+        this.dateVerifier(task.getTerm());
+
         this.taskRepository.save(task);
 
         if(!monthVerifier(task.getTerm(), task.getUser().getId()))
@@ -100,6 +103,7 @@ public class TaskService {
                 taskToUpdate.setDescription(task.getDescription());
             }
             if (Objects.nonNull(task.getTerm())) {
+                this.dateVerifier(task.getTerm());
                 taskToUpdate.setTerm(task.getTerm());
 
                 //Updating Statistics
@@ -141,6 +145,13 @@ public class TaskService {
         Optional<MonthStatistic> statistic = monthStatisticService.findByMonth(user_id, DateFormater.DateTimeToMonthEnum(date), date.getYear());
 
         return statistic.filter(monthStatistic -> (monthStatistic.getYear() == date.toLocalDate().getYear())).isPresent();
+    }
+
+    private void dateVerifier(LocalDateTime date) {
+        LocalDateTime now = LocalDateTime.now();
+        if(date.isBefore(now)) {
+            throw new BeforeNowModificationException(Task.class);
+        }
     }
 
 }

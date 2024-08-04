@@ -1,5 +1,6 @@
 package com.eduardocarlos.productivityApp.exceptions;
 
+import com.eduardocarlos.productivityApp.services.exceptions.BeforeNowModificationException;
 import com.eduardocarlos.productivityApp.services.exceptions.ObjectNotFoundException;
 import com.eduardocarlos.productivityApp.services.exceptions.UnauthenticatedUserException;
 import com.eduardocarlos.productivityApp.services.exceptions.UnauthorizedUserException;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -65,6 +67,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler imple
     @ExceptionHandler(UnauthorizedUserException.class)
     private ResponseEntity<ErrorResponse> unauthorizedUserHandler(UnauthorizedUserException exception) {
         ErrorResponse error =  new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
+        if(printstackTrace){
+            error.setStackTree(Arrays.toString(exception.getStackTrace()));
+        }
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(BeforeNowModificationException.class)
+    private ResponseEntity<ErrorResponse> beforeNowModificationHandler(BeforeNowModificationException exception) {
+        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
         if(printstackTrace){
             error.setStackTree(Arrays.toString(exception.getStackTrace()));
         }
