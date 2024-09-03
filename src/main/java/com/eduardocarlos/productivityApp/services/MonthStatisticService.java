@@ -65,7 +65,6 @@ public class MonthStatisticService {
     //Update will just change the metrics of one month
     @Transactional
     public void update(User user, LocalDateTime term) {
-
         Optional<MonthStatistic> updatedStatisticsOp = this.monthStatisticRepository
                 .findByUser_IdAndMonthAndYear(user.getId(), DateFormater.DateTimeToMonthEnum(term), term.getYear());
 

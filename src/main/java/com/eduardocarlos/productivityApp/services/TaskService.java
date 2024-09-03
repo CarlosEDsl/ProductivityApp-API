@@ -105,9 +105,8 @@ public class TaskService {
             if (Objects.nonNull(task.getTerm())) {
                 this.dateVerifier(task.getTerm());
                 taskToUpdate.setTerm(task.getTerm());
-
                 //Updating Statistics
-                if(this.monthVerifier(task.getTerm(), task.getUser().getId()))
+                if(!this.monthVerifier(task.getTerm(), task.getUser().getId()))
                     this.monthStatisticService.create(taskToUpdate.getUser(), taskToUpdate.getTerm());
             }
             taskToUpdate.setFinishDate(task.getFinishDate());
