@@ -88,7 +88,7 @@ public class TaskService {
         Optional<Task> updatedTask = this.taskRepository.findById(task.getId());
 
         UserDetailsImpl user = UserService.authenticated();
-        if(!Objects.nonNull(user) || !user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.getUser().getId())){
+        if (user == null || (!user.hasRole(ProfileEnum.ADMIN) && !Objects.equals(user.getUser().getId(), task.getUser().getId()))){
             throw new UnauthorizedUserException("trying to update task from another user");
         }
 
