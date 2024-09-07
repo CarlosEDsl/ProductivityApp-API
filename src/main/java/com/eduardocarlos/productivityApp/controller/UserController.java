@@ -4,6 +4,7 @@ import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.dtos.AddHoursDTO;
 
+import com.eduardocarlos.productivityApp.models.dtos.MonthCurrentData;
 import com.eduardocarlos.productivityApp.models.dtos.UserDTO;
 import com.eduardocarlos.productivityApp.models.enums.Month;
 import com.eduardocarlos.productivityApp.services.MonthStatisticService;
@@ -71,6 +72,12 @@ public class UserController{
         return ResponseEntity.ok(statistic);
     }
 
+    @GetMapping("/nowStatistic/{id}")
+    public ResponseEntity<MonthCurrentData> findMonthStatistic(@PathVariable Long id) {
+
+        MonthCurrentData statistic = this.monthStatisticService.getMonthCompleteMetrics(id);
+        return ResponseEntity.ok(statistic);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO){

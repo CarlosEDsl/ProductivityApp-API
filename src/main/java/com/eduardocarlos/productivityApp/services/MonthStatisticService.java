@@ -3,6 +3,7 @@ package com.eduardocarlos.productivityApp.services;
 import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.Task;
 import com.eduardocarlos.productivityApp.models.User;
+import com.eduardocarlos.productivityApp.models.dtos.MonthCurrentData;
 import com.eduardocarlos.productivityApp.models.enums.Month;
 import com.eduardocarlos.productivityApp.models.enums.ProfileEnum;
 import com.eduardocarlos.productivityApp.repositories.MonthStatisticRepository;
@@ -17,7 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -123,6 +128,34 @@ public class MonthStatisticService {
         }
 
         return monthStatistic.get();
+    }
+
+    public MonthCurrentData getMonthCompleteMetrics(Long id) {
+        Date today = new Date();
+        BigDecimal finished = BigDecimal.valueOf(0);
+        BigDecimal notFinished = BigDecimal.valueOf(0);
+        BigDecimal overdue = BigDecimal.valueOf(0);
+        List<Task> tasks = this.taskRepository.findAllByUser_Id(id)
+                .stream().filter(task -> task.getTerm().getMonth().getValue() == today.getMonth()+1).toList();
+
+        if(!tasks.isEmpty()) {
+
+            for (Task task : tasks) {
+                LocalDateTime taskTerm = task.getTerm();
+                Date taskTermDate = Date.from(taskTerm.atZone(ZoneId.systemDefault()).toInstant());
+                
+                if (task.getFinishDate() == null && today.after(taskTermDate)){
+                    overdue = overdue.add(BigDecimal.valueOf(1));
+                } else if (task.getFinishDate() == null) {
+                    notFinished = notFinished.add(BigDecimal.valueOf(1));
+                } else {
+                    finished = finished.add(BigDecimal.valueOf(1));
+                }
+            }
+        }
+
+        return new MonthCurrentData(finished, overdue, notFinished);
+
     }
 
     //Method to calculate the percentage of tasks finished
