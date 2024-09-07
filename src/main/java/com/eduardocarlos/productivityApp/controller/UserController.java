@@ -3,9 +3,9 @@ package com.eduardocarlos.productivityApp.controller;
 import com.eduardocarlos.productivityApp.models.MonthStatistic;
 import com.eduardocarlos.productivityApp.models.User;
 import com.eduardocarlos.productivityApp.models.dtos.AddHoursDTO;
-import com.eduardocarlos.productivityApp.models.dtos.DateStatisticDTO;
 
 import com.eduardocarlos.productivityApp.models.dtos.UserDTO;
+import com.eduardocarlos.productivityApp.models.enums.Month;
 import com.eduardocarlos.productivityApp.services.MonthStatisticService;
 import com.eduardocarlos.productivityApp.services.UserService;
 import jakarta.validation.Valid;
@@ -60,11 +60,17 @@ public class UserController{
     }
 
     @GetMapping("/statistic/{id}")
-    public ResponseEntity<MonthStatistic> findMonthStatistic(@PathVariable Long id, @RequestBody DateStatisticDTO date){
-        MonthStatistic statistic = this.monthStatisticService.findByUserAndDate
-                                                                (userService.findById(id), date.getMonth(), date.getYear());
+    public ResponseEntity<MonthStatistic> findMonthStatistic(
+            @PathVariable Long id,
+            @RequestParam int month,
+            @RequestParam int year) {
+
+        MonthStatistic statistic = this.monthStatisticService.findByUserAndDate(
+                userService.findById(id), Month.fromValue(month), year
+        );
         return ResponseEntity.ok(statistic);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO){

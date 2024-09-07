@@ -48,7 +48,9 @@ public class MonthStatisticService {
 
         //Creating metrics with de amount of tasks in user tasks
         monthStatistic.setTotalHours(new BigDecimal(0));
-        monthStatistic.setAvgConclusions(this.avgConclusionsCalculate(this.taskRepository.findAllByUser_Id(user.getId())));
+        List<Task> tasks = this.taskRepository.findAllByUser_Id(user.getId()).stream()
+                .filter(task -> task.getTerm().getMonthValue() == month.getValue()).toList();
+        monthStatistic.setAvgConclusions(this.avgConclusionsCalculate(tasks));
 
         return this.monthStatisticRepository.save(monthStatistic);
     }
@@ -70,7 +72,8 @@ public class MonthStatisticService {
 
         updatedStatisticsOp.ifPresent(statistic -> {
 
-            List<Task> tasks = this.taskRepository.findAllByUser_Id(statistic.getUser().getId());
+            List<Task> tasks = this.taskRepository.findAllByUser_Id(user.getId()).stream()
+                    .filter(task -> task.getTerm().getMonthValue() == term.getMonthValue()).toList();
             statistic.setAvgConclusions(this.avgConclusionsCalculate(tasks));
 
             this.monthStatisticRepository.save(statistic);
