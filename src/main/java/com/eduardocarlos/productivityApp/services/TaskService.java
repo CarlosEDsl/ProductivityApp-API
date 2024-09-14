@@ -110,10 +110,10 @@ public class TaskService {
                     this.monthStatisticService.create(taskToUpdate.getUser(), taskToUpdate.getTerm());
             }
             taskToUpdate.setFinishDate(task.getFinishDate());
-            this.monthStatisticService.update(taskToUpdate.getUser(), taskToUpdate.getTerm());
         });
-
-        return this.taskRepository.save(updatedTask.get());
+        Task taskup = this.taskRepository.save(updatedTask.get());
+        this.monthStatisticService.update(taskup.getUser(), taskup.getTerm());
+        return taskup;
 
     }
 

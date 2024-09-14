@@ -71,19 +71,18 @@ public class MonthStatisticService {
 
     //Update will just change the metrics of one month
     @Transactional
-    public void update(User user, LocalDateTime term) {
+    public MonthStatistic update(User user, LocalDateTime term) {
         Optional<MonthStatistic> updatedStatisticsOp = this.monthStatisticRepository
                 .findByUser_IdAndMonthAndYear(user.getId(), DateFormater.DateTimeToMonthEnum(term), term.getYear());
 
-        updatedStatisticsOp.ifPresent(statistic -> {
-
+        if(updatedStatisticsOp.isPresent()){
             List<Task> tasks = this.taskRepository.findAllByUser_Id(user.getId()).stream()
                     .filter(task -> task.getTerm().getMonthValue() == term.getMonthValue()).toList();
-            statistic.setAvgConclusions(this.avgConclusionsCalculate(tasks));
+            updatedStatisticsOp.get().setAvgConclusions(this.avgConclusionsCalculate(tasks));
 
-            this.monthStatisticRepository.save(statistic);
+        }
 
-        });
+        return this.monthStatisticRepository.save(updatedStatisticsOp.get());
     }
 
     @Transactional
@@ -95,19 +94,23 @@ public class MonthStatisticService {
         }
 
         Month monthEnum = Month.fromValue(month);
-        MonthStatistic monthS = this.findByUserAndDate(user, monthEnum, year);
+        Optional<MonthStatistic> monthS = this.monthStatisticRepository.findByUser_IdAndMonthAndYear(user.getId(), monthEnum, year);
+        MonthStatistic monthStatistic;
 
-        if(Objects.isNull(monthS)){
-            throw new ObjectNotFoundException(MonthStatistic.class);
+        if(monthS.isEmpty()){
+            LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0);
+            monthStatistic = this.create(user, date);
+        } else {
+            monthStatistic = monthS.get();
         }
 
-        if(Objects.nonNull(monthS.getTotalHours())){
-            monthS.setTotalHours(monthS.getTotalHours().add(hours));
+        if(Objects.nonNull(monthStatistic.getTotalHours())){
+            monthStatistic.setTotalHours(monthStatistic.getTotalHours().add(hours));
         } else{
-            monthS.setTotalHours(hours);
+            monthStatistic.setTotalHours(hours);
         }
 
-        return monthS;
+        return monthStatistic;
     }
 
     public Optional<MonthStatistic> findByMonth(Long user_id, Month month, Integer year) {

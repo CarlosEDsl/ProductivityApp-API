@@ -96,13 +96,8 @@ public class UserController{
 
     @PatchMapping("/{user_id}")
     public ResponseEntity<MonthStatistic> addHoursToMonth(@PathVariable Long user_id, @RequestBody AddHoursDTO addHours) {
-        if(Objects.nonNull(addHours) && addHours.hours() > 0) {
-            BigDecimal hours = new BigDecimal(addHours.hours());
-            User user = this.userService.findById(user_id);
-            return ResponseEntity.ok().body(this.monthStatisticService.addHoursToMonth(user, addHours.month(), addHours.year(), hours));
-        }
-        return ResponseEntity.unprocessableEntity().build();
-
+        User user = this.userService.findById(user_id);
+        return ResponseEntity.ok().body(this.monthStatisticService.addHoursToMonth(user, addHours.month(), addHours.year(), addHours.hours()));
     }
 
 }
