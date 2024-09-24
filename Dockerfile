@@ -1,25 +1,22 @@
-FROM ubuntu:latest AS build
+# Etapa de build
+FROM openjdk:22-jdk AS build
 
-# Instalar o JDK 22
-RUN apt-get update
-RUN apt-get install openjdk-22-jdk -y
+# Instalar Maven e outras dependências
+RUN apt-get update && apt-get install -y maven
 
 # Copiar o código da aplicação para o container
 COPY . .
 
-# Instalar o Maven para compilar a aplicação
-RUN apt-get install maven -y
-
-# Compilar a aplicação
+# Compilar a aplicação com Maven
 RUN mvn clean install
 
-# Segunda etapa para uma imagem mais leve
+# Imagem final
 FROM openjdk:22-jdk-slim
 
-# Expor a porta onde a aplicação será executada (ajuste para a porta que a aplicação utiliza)
+# Expor a porta onde a aplicação será executada
 EXPOSE 8080
 
-# Copiar o JAR gerado na fase de build para o container final
+# Copiar o JAR gerado no estágio de build
 COPY --from=build /target/productivityApp-0.0.1-SNAPSHOT.jar app.jar
 
 # Comando para iniciar a aplicação
