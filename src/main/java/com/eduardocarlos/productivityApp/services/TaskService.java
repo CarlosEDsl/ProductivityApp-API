@@ -103,7 +103,9 @@ public class TaskService {
                 taskToUpdate.setDescription(task.getDescription());
             }
             if (Objects.nonNull(task.getTerm())) {
-                this.dateVerifier(task.getTerm());
+                if(task.getFinishDate() == null) {
+                    this.dateVerifier(task.getTerm());
+                }
                 taskToUpdate.setTerm(task.getTerm());
                 //Updating Statistics
                 if(!this.monthVerifier(task.getTerm(), task.getUser().getId()))
